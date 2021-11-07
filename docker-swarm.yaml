@@ -1,0 +1,45 @@
+version: '3.5'
+
+services:
+
+  php:
+    image: selfreview/php-fpm:current
+    volumes:
+      - './:/var/www/api:delegated'
+      - 'composer:/root/.composer:cached'
+    networks:
+      exo_public:
+        aliases:
+          - 'php-fpm.selfreview.exo.docker'
+
+  nginx:
+    image: nginx:1.16-alpine
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/conf.d/default.conf
+    volumes:
+      - './public:/var/www/api/public:ro'
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.selfreview.rule=Host(`selfreview.docker`)"
+        - "traefik.http.routers.selfreview.entrypoints=public"
+        - "traefik.http.services.selfreview.loadbalancer.server.port=80"
+    networks:
+      exo_public:
+        aliases:
+          - 'design_patterns.exo.docker'
+      traefik_reverse_proxy: ~
+
+volumes:
+  composer: ~
+
+configs:
+  nginx_config:
+    file: ./docker/nginx/default.conf
+
+networks:
+  traefik_reverse_proxy:
+    external: true
+  exo_public:
+    external: true
