@@ -1,0 +1,23 @@
+name: Code check
+on:
+  - push
+
+jobs:
+  analysis:
+    name: PHP Code static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer, phpstan
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: PHPStan
+        run: phpstan analyse -c phpstan.neon.dist --error-format=github
