@@ -11,7 +11,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          tools: composer, phpstan
+          tools: composer, phpstan, psalm
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,3 +21,11 @@ jobs:
 
       - name: PHPStan
         run: phpstan analyse -c phpstan.neon.dist --error-format=github
+
+      - name: Psalm
+        if: ${{ always() }}
+        run: psalm --config=psalm.xml --output-format=github
+
+      - name: Psalm security
+        if: ${{ always() }}
+        run: psalm --config=psalm.xml --output-format=github --taint-analysis
